@@ -90,15 +90,12 @@ bool Snake::Move(int XChange, int YChange) {
 
 void Snake::Draw(int ScreenWidth, int ScreenHeight, int BoxSize) {
     SnakeBodySection *CurrentSection = Head;
-    while (CurrentSection->GetNextSection() != nullptr) {
+    while (CurrentSection != nullptr) {
         const int ScreenX = BoxSize * CurrentSection->GetX();
         const int ScreenY = BoxSize * CurrentSection->GetY();
         DrawRectangle(ScreenX, ScreenY, BoxSize, BoxSize, GREEN);
         CurrentSection = CurrentSection->GetNextSection();
     }
-    const int ScreenX = BoxSize * CurrentSection->GetX();
-    const int ScreenY = BoxSize * CurrentSection->GetY();
-    DrawRectangle(ScreenX, ScreenY, BoxSize, BoxSize, GREEN);
 }
 
 int Snake::GetLength() {

@@ -92,8 +92,5 @@ int main() {
         CurrentSecondsForMovement += window.GetFrameTime();
 
     }
-
-    // UnloadTexture() and CloseWindow() are called automatically.
-
     return 0;
 }
