@@ -27,12 +27,12 @@ int main() {
     raylib::Texture2D UpRight("UpRight.png");
     raylib::Texture2D DownRight("DownRight.png");
 
-    // raylib::Texture2D VerticalFood("VerticalFood.png");
-    // raylib::Texture2D HorizontalFood("HorizontalFood.png");
-    // raylib::Texture2D UpLeftFood("UpLeftFood.png");
-    // raylib::Texture2D DownLeftFood("DownLeftFood.png");
-    // raylib::Texture2D UpRightFood("UpRightFood.png");
-    // raylib::Texture2D DownRightFood("DownRightFood.png");
+    raylib::Texture2D VerticalFood("VerticalFood.png");
+    raylib::Texture2D HorizontalFood("HorizontalFood.png");
+    raylib::Texture2D UpLeftFood("UpLeftFood.png");
+    raylib::Texture2D DownLeftFood("DownLeftFood.png");
+    raylib::Texture2D UpRightFood("UpRightFood.png");
+    raylib::Texture2D DownRightFood("DownRightFood.png");
 
     raylib::Texture2D TailUp("TailUp.png");
     raylib::Texture2D TailDown("TailDown.png");
@@ -49,7 +49,7 @@ int main() {
     raylib::Texture2D HeadLeftOpen("HeadLeftOpen.png");
     raylib::Texture2D HeadRightOpen("HeadRightOpen.png");
 
-    SnakeTextures SnakeStuff(&Vertical, &Horizontal, &UpLeft, &DownLeft, &UpRight, &DownRight, &TailUp, &TailDown, &TailLeft, &TailRight, &HeadUp, &HeadDown, &HeadRight, &HeadLeft, &HeadUpOpen, &HeadDownOpen, &HeadRightOpen, &HeadLeftOpen);
+    SnakeTextures SnakeStuff(&Vertical, &Horizontal, &UpLeft, &DownLeft, &UpRight, &DownRight, &TailUp, &TailDown, &TailLeft, &TailRight, &HeadUp, &HeadDown, &HeadRight, &HeadLeft, &HeadUpOpen, &HeadDownOpen, &HeadRightOpen, &HeadLeftOpen, &VerticalFood, &HorizontalFood, &UpLeftFood, &DownLeftFood, &UpRightFood, &DownRightFood);
 
     auto *TitleString = new std::string("Raylib Snake - "+std::to_string(window.GetFPS())+"FPS");
 
@@ -128,9 +128,11 @@ int main() {
                 ApplePositionX = RandomWidth(Random);
                 ApplePositionY = RandomHeight(Random);
                 PlayerSnake->AddSegment();
+                PlayerSnake->GetHead()->SetHasFood(true);
             }
 
             CurrentSecondsForMovement = 0.0;
+            PlayerSnake->ProcessFood();
             GameOver = PlayerSnake->Move(DirectionToMoveX, DirectionToMoveY);
             LastTimedMoveDirectionX = DirectionToMoveX;
             LastTimedMoveDirectionY = DirectionToMoveY;

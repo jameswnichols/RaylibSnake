@@ -39,6 +39,13 @@ void SnakeBodySection::MoveTo(int NewX, int NewY) {
     Y = NewY;
 }
 
+void SnakeBodySection::SetHasFood(bool NewHasFood) {
+    HasFood = NewHasFood;
+}
+
+bool SnakeBodySection::GetHasFood() {
+    return HasFood;
+}
 
 Snake::Snake(int StartX, int StartY) {
     auto StartSection = new SnakeBodySection(StartX, StartY);
@@ -61,6 +68,22 @@ void Snake::AddSegment() {
     Length++;
 }
 
+void Snake::ProcessFood() {
+    bool MovedFood = false;
+    SnakeBodySection *CurrentSection = Head;
+    while (CurrentSection != nullptr and not MovedFood) {
+        if (CurrentSection->GetHasFood()) {
+            CurrentSection->SetHasFood(false);
+            SnakeBodySection *NextSection = CurrentSection->GetNextSection();
+            if (NextSection != nullptr) {
+                MovedFood = true;
+                NextSection->SetHasFood(true);
+            }
+        }
+        CurrentSection = CurrentSection->GetNextSection();
+    }
+}
+
 bool Snake::Move(int XChange, int YChange) {
 
     int NewX = Head->GetX()+XChange;
@@ -81,11 +104,15 @@ bool Snake::Move(int XChange, int YChange) {
 
     CurrentSection->GetPreviousSection()->SetNextSection(nullptr);
 
+    CurrentSection->GetPreviousSection()->SetHasFood(CurrentSection->GetHasFood());
+    CurrentSection->SetHasFood(false);
+
     CurrentSection->SetNextSection(Head);
     CurrentSection->SetPreviousSection(nullptr);
 
     Head->SetPreviousSection(CurrentSection);
     Head = CurrentSection;
+
     return false;
 }
 
@@ -141,11 +168,11 @@ void Snake::Draw(int LastX, int LastY, bool AppleAhead, SnakeTextures *Textures,
             int PreviousChangeY = PreviousSection->GetY() - CurrentSection->GetY();
             if (NextSection == nullptr) {
                 if (PreviousChangeX != 0) {
-                    Texture = Textures->Horizontal;
+                    Texture = CurrentSection->GetHasFood() ? Textures->HorizontalFood : Textures->Horizontal;
                     //Text = "-";
                 }
                 else if (PreviousChangeY != 0) {
-                    Texture = Textures->Vertical;
+                    Texture = CurrentSection->GetHasFood() ? Textures->VerticalFood : Textures->Vertical;
                     //Text = "|";
                 }
             }
@@ -157,27 +184,27 @@ void Snake::Draw(int LastX, int LastY, bool AppleAhead, SnakeTextures *Textures,
                 bool PieceLeft = (NextSectionChangeX < 0 or PreviousChangeX < 0);
                 bool PieceRight = (NextSectionChangeX > 0 or PreviousChangeX > 0);
                 if (PieceAbove and PieceBelow) {
-                    Texture = Textures->Vertical;
+                    Texture = CurrentSection->GetHasFood() ? Textures->VerticalFood : Textures->Vertical;
                     //Text = "┃";
                 }
                 if (PieceLeft and PieceRight) {
-                    Texture = Textures->Horizontal;
+                    Texture = CurrentSection->GetHasFood() ? Textures->HorizontalFood : Textures->Horizontal;
                     //Text = "━";
                 }
                 if (PieceAbove and PieceLeft) {
-                    Texture = Textures->UpLeft;
+                    Texture = CurrentSection->GetHasFood() ? Textures->UpLeftFood : Textures->UpLeft;
                     //Text = "┛";
                 }
                 if (PieceAbove and PieceRight) {
-                    Texture = Textures->UpRight;
+                    Texture = CurrentSection->GetHasFood() ? Textures->UpRightFood : Textures->UpRight;
                     //Text = "┗";
                 }
                 if (PieceBelow and PieceLeft) {
-                    Texture = Textures->DownLeft;
+                    Texture = CurrentSection->GetHasFood() ? Textures->DownLeftFood : Textures->DownLeft;
                     //Text = "┓";
                 }
                 if (PieceBelow and PieceRight) {
-                    Texture = Textures->DownRight;
+                    Texture = CurrentSection->GetHasFood() ? Textures->DownRightFood : Textures->DownRight;
                     //Text = "┏";
                 }
 
@@ -199,7 +226,7 @@ int Snake::GetLength() {
     return Length;
 }
 
-SnakeTextures::SnakeTextures(raylib::Texture2D *V, raylib::Texture2D *H, raylib::Texture2D *UL, raylib::Texture2D *DL, raylib::Texture2D *UR, raylib::Texture2D *DR, raylib::Texture2D *TU, raylib::Texture2D *TD, raylib::Texture2D *TL, raylib::Texture2D *TR, raylib::Texture2D *HU, raylib::Texture2D *HD, raylib::Texture2D *HR, raylib::Texture2D *HL, raylib::Texture2D *HUO, raylib::Texture2D *HDO, raylib::Texture2D *HRO, raylib::Texture2D *HLO) :
+SnakeTextures::SnakeTextures(raylib::Texture2D *V, raylib::Texture2D *H, raylib::Texture2D *UL, raylib::Texture2D *DL, raylib::Texture2D *UR, raylib::Texture2D *DR, raylib::Texture2D *TU, raylib::Texture2D *TD, raylib::Texture2D *TL, raylib::Texture2D *TR, raylib::Texture2D *HU, raylib::Texture2D *HD, raylib::Texture2D *HR, raylib::Texture2D *HL, raylib::Texture2D *HUO, raylib::Texture2D *HDO, raylib::Texture2D *HRO, raylib::Texture2D *HLO, raylib::Texture2D *VF, raylib::Texture2D *HF, raylib::Texture2D *ULF, raylib::Texture2D *DLF, raylib::Texture2D *URF, raylib::Texture2D *DRF) :
 Vertical(V),
 Horizontal(H),
 UpLeft(UL),
@@ -217,7 +244,13 @@ HeadRight(HR),
 HeadUpOpen(HUO),
 HeadDownOpen(HDO),
 HeadLeftOpen(HLO),
-HeadRightOpen(HRO)
+HeadRightOpen(HRO),
+VerticalFood(VF),
+HorizontalFood(HF),
+UpLeftFood(ULF),
+DownLeftFood(DLF),
+UpRightFood(URF),
+DownRightFood(DRF)
 {}
 
 
