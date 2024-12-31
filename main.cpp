@@ -49,11 +49,13 @@ int main() {
     raylib::Texture2D HeadLeftOpen("HeadLeftOpen.png");
     raylib::Texture2D HeadRightOpen("HeadRightOpen.png");
 
+    raylib::Texture2D Food("Food.png");
+
     SnakeTextures SnakeStuff(&Vertical, &Horizontal, &UpLeft, &DownLeft, &UpRight, &DownRight, &TailUp, &TailDown, &TailLeft, &TailRight, &HeadUp, &HeadDown, &HeadRight, &HeadLeft, &HeadUpOpen, &HeadDownOpen, &HeadRightOpen, &HeadLeftOpen, &VerticalFood, &HorizontalFood, &UpLeftFood, &DownLeftFood, &UpRightFood, &DownRightFood);
 
     auto *TitleString = new std::string("Raylib Snake - "+std::to_string(window.GetFPS())+"FPS");
 
-    //SetTargetFPS(240);
+    SetTargetFPS(240);
 
     auto *PlayerSnake = new Snake((ScreenWidth / BoxSize) / 2, (ScreenHeight / BoxSize) / 2);
     for (int i = 0; i < 2; i++) {
@@ -89,17 +91,17 @@ int main() {
             auto DeathText = "RIP! You Died With A Length Of "+std::to_string(PlayerSnake->GetLength())+"!";
             auto DeathTextCString = DeathText.c_str();
             int TextWidth = MeasureText(DeathTextCString, 30);
-            DrawText(DeathTextCString, (ScreenWidth / 2) - (TextWidth / 2), ScreenHeight / 2, 30, LIGHTGRAY);
+            DrawText(DeathTextCString, (ScreenWidth / 2) - (TextWidth / 2), ScreenHeight / 2, 30, BLACK);
             EndDrawing();
             continue;
         }
 
-        DrawRectangle(ApplePositionX * BoxSize, ApplePositionY * BoxSize, BoxSize, BoxSize, RED);
+        Food.Draw(ApplePositionX * BoxSize, ApplePositionY * BoxSize);
 
         SnakeBodySection *Head = PlayerSnake->GetHead();
         int SpaceAheadX = Head->GetX() + LastTimedMoveDirectionX;
         int SpaceAheadY = Head->GetY() + LastTimedMoveDirectionY;
-        bool NextMoveApple = (SpaceAheadX == ApplePositionX && SpaceAheadY == ApplePositionY);
+        bool NextMoveApple = (SpaceAheadX == ApplePositionX && SpaceAheadY == ApplePositionY) or (Head->GetX() == ApplePositionX && Head->GetY() == ApplePositionY);
 
         PlayerSnake->Draw(LastTimedMoveDirectionX, LastTimedMoveDirectionY, NextMoveApple, &SnakeStuff, BoxSize);
 
