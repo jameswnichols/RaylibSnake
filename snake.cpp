@@ -89,33 +89,108 @@ bool Snake::Move(int XChange, int YChange) {
     return false;
 }
 
-void Snake::Draw(int LastX, int LastY, Vector2 FontOffset, raylib::Font *FontToUse, int BoxSize) {
+void Snake::Draw(int LastX, int LastY, bool AppleAhead, SnakeTextures *Textures, int BoxSize) {
     bool FirstSection = true;
     SnakeBodySection *CurrentSection = Head;
     while (CurrentSection != nullptr) {
+        raylib::Texture2D *Texture = Textures->Vertical;
 
-        auto Text = "#";
-
+        //First Section
         if (FirstSection) {
             FirstSection = false;
             if (LastX == -1) {
-                Text = "<";
+                Texture = AppleAhead ? Textures->HeadLeftOpen : Textures->HeadLeft;
             }
             else if (LastX == 1) {
-                Text = ">";
+                Texture = AppleAhead ? Textures->HeadRightOpen : Textures->HeadRight;
             }
             else if (LastY == -1) {
-                Text = "^";
+                Texture = AppleAhead ? Textures->HeadUpOpen : Textures->HeadUp;
             }
             else if (LastY == 1) {
-                Text = "v";
+                Texture = AppleAhead ? Textures->HeadDownOpen : Textures->HeadDown;
             }
+        }
+        //Last Section
+        else if (CurrentSection->GetNextSection() == nullptr) {
+            SnakeBodySection *PreviousSection = CurrentSection->GetPreviousSection();
+            int PreviousChangeX = PreviousSection->GetX() - CurrentSection->GetX();
+            int PreviousChangeY = PreviousSection->GetY() - CurrentSection->GetY();
+            bool PieceAbove = (PreviousChangeY < 0);
+            bool PieceBelow = (PreviousChangeY > 0);
+            bool PieceLeft = (PreviousChangeX < 0);
+            bool PieceRight = (PreviousChangeX > 0);
+            if (PieceAbove) {
+                Texture = Textures->TailUp;
+            }
+            else if (PieceBelow) {
+                Texture = Textures->TailDown;
+            }
+            else if (PieceLeft) {
+                Texture = Textures->TailRight;
+            }
+            else if (PieceRight) {
+                Texture = Textures->TailLeft;
+            }
+        }
+        //Middle Pieces
+        else {
+            SnakeBodySection *NextSection = CurrentSection->GetNextSection();
+            SnakeBodySection *PreviousSection = CurrentSection->GetPreviousSection();
+            int PreviousChangeX = PreviousSection->GetX() - CurrentSection->GetX();
+            int PreviousChangeY = PreviousSection->GetY() - CurrentSection->GetY();
+            if (NextSection == nullptr) {
+                if (PreviousChangeX != 0) {
+                    Texture = Textures->Horizontal;
+                    //Text = "-";
+                }
+                else if (PreviousChangeY != 0) {
+                    Texture = Textures->Vertical;
+                    //Text = "|";
+                }
+            }
+            else {
+                int NextSectionChangeX = NextSection->GetX() - CurrentSection->GetX();
+                int NextSectionChangeY = NextSection->GetY() - CurrentSection->GetY();
+                bool PieceAbove = (NextSectionChangeY < 0 or PreviousChangeY < 0);
+                bool PieceBelow = (NextSectionChangeY > 0 or PreviousChangeY > 0);
+                bool PieceLeft = (NextSectionChangeX < 0 or PreviousChangeX < 0);
+                bool PieceRight = (NextSectionChangeX > 0 or PreviousChangeX > 0);
+                if (PieceAbove and PieceBelow) {
+                    Texture = Textures->Vertical;
+                    //Text = "┃";
+                }
+                if (PieceLeft and PieceRight) {
+                    Texture = Textures->Horizontal;
+                    //Text = "━";
+                }
+                if (PieceAbove and PieceLeft) {
+                    Texture = Textures->UpLeft;
+                    //Text = "┛";
+                }
+                if (PieceAbove and PieceRight) {
+                    Texture = Textures->UpRight;
+                    //Text = "┗";
+                }
+                if (PieceBelow and PieceLeft) {
+                    Texture = Textures->DownLeft;
+                    //Text = "┓";
+                }
+                if (PieceBelow and PieceRight) {
+                    Texture = Textures->DownRight;
+                    //Text = "┏";
+                }
+
+            }
+
         }
 
         const int ScreenX = BoxSize * CurrentSection->GetX();
         const int ScreenY = BoxSize * CurrentSection->GetY();
         //DrawRectangle(ScreenX, ScreenY, BoxSize, BoxSize, GREEN);
-        FontToUse->DrawText(Text, Vector2Subtract(Vector2(ScreenX + BoxSize / 2, ScreenY + BoxSize / 2), FontOffset), 35.0, 0.0, BLACK);
+        Texture->Draw(ScreenX, ScreenY);
+        //DrawText(Text, (ScreenX + (BoxSize / 2)) - FontOffset.x, (ScreenY + (BoxSize / 2)) - FontOffset.y, 35.0, BLACK);
+        //FontToUse->DrawText(Text, Vector2Subtract(Vector2(ScreenX + BoxSize / 2, ScreenY + BoxSize / 2), FontOffset), 35.0, 0.0, BLACK);
         CurrentSection = CurrentSection->GetNextSection();
     }
 }
@@ -123,6 +198,28 @@ void Snake::Draw(int LastX, int LastY, Vector2 FontOffset, raylib::Font *FontToU
 int Snake::GetLength() {
     return Length;
 }
+
+SnakeTextures::SnakeTextures(raylib::Texture2D *V, raylib::Texture2D *H, raylib::Texture2D *UL, raylib::Texture2D *DL, raylib::Texture2D *UR, raylib::Texture2D *DR, raylib::Texture2D *TU, raylib::Texture2D *TD, raylib::Texture2D *TL, raylib::Texture2D *TR, raylib::Texture2D *HU, raylib::Texture2D *HD, raylib::Texture2D *HR, raylib::Texture2D *HL, raylib::Texture2D *HUO, raylib::Texture2D *HDO, raylib::Texture2D *HRO, raylib::Texture2D *HLO) :
+Vertical(V),
+Horizontal(H),
+UpLeft(UL),
+DownLeft(DL),
+UpRight(UR),
+DownRight(DR),
+TailUp(TU),
+TailDown(TD),
+TailLeft(TR),
+TailRight(TL),
+HeadUp(HU),
+HeadDown(HD),
+HeadLeft(HL),
+HeadRight(HR),
+HeadUpOpen(HUO),
+HeadDownOpen(HDO),
+HeadLeftOpen(HLO),
+HeadRightOpen(HRO)
+{}
+
 
 
 

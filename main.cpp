@@ -8,16 +8,48 @@ int main() {
     int ScreenWidth = 800;
     int ScreenHeight = 800;
 
-    int BoxSize = 20;
+    int BoxSize = 40;
 
     float CurrentSecondsForMovement = 0.0;
     float SecondsPerMovement = 0.1;
 
     raylib::Window window(ScreenWidth, ScreenHeight, "Raylib Snake");
 
+    raylib::Color BackgroundColour(169, 224, 0);
+
     raylib::Font BookFont("BookFont.ttf", 35);
     Vector2 FontSizeMiddle = BookFont.MeasureText("#", 35, 0.0) / 2;
 
+    raylib::Texture2D Vertical("Vertical.png");
+    raylib::Texture2D Horizontal("Horizontal.png");
+    raylib::Texture2D UpLeft("UpLeft.png");
+    raylib::Texture2D DownLeft("DownLeft.png");
+    raylib::Texture2D UpRight("UpRight.png");
+    raylib::Texture2D DownRight("DownRight.png");
+
+    // raylib::Texture2D VerticalFood("VerticalFood.png");
+    // raylib::Texture2D HorizontalFood("HorizontalFood.png");
+    // raylib::Texture2D UpLeftFood("UpLeftFood.png");
+    // raylib::Texture2D DownLeftFood("DownLeftFood.png");
+    // raylib::Texture2D UpRightFood("UpRightFood.png");
+    // raylib::Texture2D DownRightFood("DownRightFood.png");
+
+    raylib::Texture2D TailUp("TailUp.png");
+    raylib::Texture2D TailDown("TailDown.png");
+    raylib::Texture2D TailLeft("TailLeft.png");
+    raylib::Texture2D TailRight("TailRight.png");
+
+    raylib::Texture2D HeadUp("HeadUp.png");
+    raylib::Texture2D HeadDown("HeadDown.png");
+    raylib::Texture2D HeadLeft("HeadLeft.png");
+    raylib::Texture2D HeadRight("HeadRight.png");
+
+    raylib::Texture2D HeadUpOpen("HeadUpOpen.png");
+    raylib::Texture2D HeadDownOpen("HeadDownOpen.png");
+    raylib::Texture2D HeadLeftOpen("HeadLeftOpen.png");
+    raylib::Texture2D HeadRightOpen("HeadRightOpen.png");
+
+    SnakeTextures SnakeStuff(&Vertical, &Horizontal, &UpLeft, &DownLeft, &UpRight, &DownRight, &TailUp, &TailDown, &TailLeft, &TailRight, &HeadUp, &HeadDown, &HeadRight, &HeadLeft, &HeadUpOpen, &HeadDownOpen, &HeadRightOpen, &HeadLeftOpen);
 
     auto *TitleString = new std::string("Raylib Snake - "+std::to_string(window.GetFPS())+"FPS");
 
@@ -48,7 +80,7 @@ int main() {
     {
         BeginDrawing();
 
-        window.ClearBackground(RAYWHITE);
+        window.ClearBackground(BackgroundColour);
 
         *TitleString = "Raylib Snake - "+std::to_string(window.GetFPS())+"FPS " + std::to_string(CurrentSecondsForMovement);
         window.SetTitle(*TitleString);
@@ -63,7 +95,13 @@ int main() {
         }
 
         DrawRectangle(ApplePositionX * BoxSize, ApplePositionY * BoxSize, BoxSize, BoxSize, RED);
-        PlayerSnake->Draw(LastTimedMoveDirectionX, LastTimedMoveDirectionY, FontSizeMiddle, &BookFont, BoxSize);
+
+        SnakeBodySection *Head = PlayerSnake->GetHead();
+        int SpaceAheadX = Head->GetX() + LastTimedMoveDirectionX;
+        int SpaceAheadY = Head->GetY() + LastTimedMoveDirectionY;
+        bool NextMoveApple = (SpaceAheadX == ApplePositionX && SpaceAheadY == ApplePositionY);
+
+        PlayerSnake->Draw(LastTimedMoveDirectionX, LastTimedMoveDirectionY, NextMoveApple, &SnakeStuff, BoxSize);
 
         EndDrawing();
 
