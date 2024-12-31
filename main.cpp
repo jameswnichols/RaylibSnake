@@ -15,6 +15,10 @@ int main() {
 
     raylib::Window window(ScreenWidth, ScreenHeight, "Raylib Snake");
 
+    raylib::Font BookFont("BookFont.ttf", 35);
+    Vector2 FontSizeMiddle = BookFont.MeasureText("#", 35, 0.0) / 2;
+
+
     auto *TitleString = new std::string("Raylib Snake - "+std::to_string(window.GetFPS())+"FPS");
 
     //SetTargetFPS(240);
@@ -59,7 +63,7 @@ int main() {
         }
 
         DrawRectangle(ApplePositionX * BoxSize, ApplePositionY * BoxSize, BoxSize, BoxSize, RED);
-        PlayerSnake->Draw(ScreenWidth, ScreenHeight, BoxSize);
+        PlayerSnake->Draw(LastTimedMoveDirectionX, LastTimedMoveDirectionY, FontSizeMiddle, &BookFont, BoxSize);
 
         EndDrawing();
 

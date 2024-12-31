@@ -4,6 +4,7 @@
 #include "snake.h"
 
 #include <iostream>
+#include "include/raylib-cpp.hpp"
 #include <ostream>
 
 
@@ -88,12 +89,33 @@ bool Snake::Move(int XChange, int YChange) {
     return false;
 }
 
-void Snake::Draw(int ScreenWidth, int ScreenHeight, int BoxSize) {
+void Snake::Draw(int LastX, int LastY, Vector2 FontOffset, raylib::Font *FontToUse, int BoxSize) {
+    bool FirstSection = true;
     SnakeBodySection *CurrentSection = Head;
     while (CurrentSection != nullptr) {
+
+        auto Text = "#";
+
+        if (FirstSection) {
+            FirstSection = false;
+            if (LastX == -1) {
+                Text = "<";
+            }
+            else if (LastX == 1) {
+                Text = ">";
+            }
+            else if (LastY == -1) {
+                Text = "^";
+            }
+            else if (LastY == 1) {
+                Text = "v";
+            }
+        }
+
         const int ScreenX = BoxSize * CurrentSection->GetX();
         const int ScreenY = BoxSize * CurrentSection->GetY();
-        DrawRectangle(ScreenX, ScreenY, BoxSize, BoxSize, GREEN);
+        //DrawRectangle(ScreenX, ScreenY, BoxSize, BoxSize, GREEN);
+        FontToUse->DrawText(Text, Vector2Subtract(Vector2(ScreenX + BoxSize / 2, ScreenY + BoxSize / 2), FontOffset), 35.0, 0.0, BLACK);
         CurrentSection = CurrentSection->GetNextSection();
     }
 }

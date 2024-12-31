@@ -33,7 +33,7 @@ public:
     SnakeBodySection *GetHead();
     bool Move(int XChange, int YChange);
     void AddSegment();
-    void Draw(int ScreenWidth, int ScreenHeight, int BoxSize);
+    void Draw(int LastX, int LastY, Vector2 FontOffset, raylib::Font *FontToUse, int BoxSiz);
     int GetLength();
 };
 
