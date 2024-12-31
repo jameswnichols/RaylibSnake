@@ -17,7 +17,7 @@ int main() {
 
     auto *TitleString = new std::string("Raylib Snake - "+std::to_string(window.GetFPS())+"FPS");
 
-    SetTargetFPS(240);
+    //SetTargetFPS(240);
 
     auto *PlayerSnake = new Snake((ScreenWidth / BoxSize) / 2, (ScreenHeight / BoxSize) / 2);
     for (int i = 0; i < 2; i++) {
@@ -26,6 +26,9 @@ int main() {
 
     int DirectionToMoveX = 0;
     int DirectionToMoveY = 1;
+
+    int LastTimedMoveDirectionX = DirectionToMoveX;
+    int LastTimedMoveDirectionY = DirectionToMoveY;
 
     std::random_device RandomDevice;
     std::mt19937 Random(RandomDevice());
@@ -60,19 +63,19 @@ int main() {
 
         EndDrawing();
 
-        if (IsKeyPressed(KEY_UP) and DirectionToMoveY == 0){
+        if (IsKeyPressed(KEY_UP) and LastTimedMoveDirectionY == 0){
             DirectionToMoveX = 0;
             DirectionToMoveY = -1;
         }
-        else if (IsKeyPressed(KEY_DOWN) and DirectionToMoveY == 0) {
+        else if (IsKeyPressed(KEY_DOWN) and LastTimedMoveDirectionY == 0) {
             DirectionToMoveX = 0;
             DirectionToMoveY = 1;
         }
-        else if (IsKeyPressed(KEY_LEFT) and DirectionToMoveX == 0) {
+        else if (IsKeyPressed(KEY_LEFT) and LastTimedMoveDirectionX == 0) {
             DirectionToMoveX = -1;
             DirectionToMoveY = 0;
         }
-        else if (IsKeyPressed(KEY_RIGHT) and DirectionToMoveX == 0) {
+        else if (IsKeyPressed(KEY_RIGHT) and LastTimedMoveDirectionX == 0) {
             DirectionToMoveX = 1;
             DirectionToMoveY = 0;
         }
@@ -87,6 +90,8 @@ int main() {
 
             CurrentSecondsForMovement = 0.0;
             GameOver = PlayerSnake->Move(DirectionToMoveX, DirectionToMoveY);
+            LastTimedMoveDirectionX = DirectionToMoveX;
+            LastTimedMoveDirectionY = DirectionToMoveY;
         }
 
         CurrentSecondsForMovement += window.GetFrameTime();
