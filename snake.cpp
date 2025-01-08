@@ -216,6 +216,7 @@ void Snake::Draw(int LastX, int LastY, bool AppleAhead, SnakeTextures *Textures,
         const int ScreenY = BoxSize * CurrentSection->GetY();
         //DrawRectangle(ScreenX, ScreenY, BoxSize, BoxSize, GREEN);
         Texture->Draw(ScreenX, ScreenY);
+
         //DrawText(Text, (ScreenX + (BoxSize / 2)) - FontOffset.x, (ScreenY + (BoxSize / 2)) - FontOffset.y, 35.0, BLACK);
         //FontToUse->DrawText(Text, Vector2Subtract(Vector2(ScreenX + BoxSize / 2, ScreenY + BoxSize / 2), FontOffset), 35.0, 0.0, BLACK);
         CurrentSection = CurrentSection->GetNextSection();

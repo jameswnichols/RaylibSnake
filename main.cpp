@@ -11,14 +11,13 @@ int main() {
     int BoxSize = 40;
 
     float CurrentSecondsForMovement = 0.0;
-    float SecondsPerMovement = 0.1;
+    float SecondsPerMovement = 0.125;
 
     raylib::Window window(ScreenWidth, ScreenHeight, "Raylib Snake");
 
     raylib::Color BackgroundColour(169, 224, 0);
 
-    raylib::Font BookFont("BookFont.ttf", 35);
-    Vector2 FontSizeMiddle = BookFont.MeasureText("#", 35, 0.0) / 2;
+    raylib::Font ScoreFont("ScoreFont.ttf", 40);
 
     raylib::Texture2D Vertical("Vertical.png");
     raylib::Texture2D Horizontal("Horizontal.png");
@@ -51,6 +50,8 @@ int main() {
 
     raylib::Texture2D Food("Food.png");
 
+    raylib::Rectangle Rectangle(40, 80, ScreenWidth - 80, ScreenHeight - 120);
+
     SnakeTextures SnakeStuff(&Vertical, &Horizontal, &UpLeft, &DownLeft, &UpRight, &DownRight, &TailUp, &TailDown, &TailLeft, &TailRight, &HeadUp, &HeadDown, &HeadRight, &HeadLeft, &HeadUpOpen, &HeadDownOpen, &HeadRightOpen, &HeadLeftOpen, &VerticalFood, &HorizontalFood, &UpLeftFood, &DownLeftFood, &UpRightFood, &DownRightFood);
 
     auto *TitleString = new std::string("Raylib Snake - "+std::to_string(window.GetFPS())+"FPS");
@@ -70,13 +71,14 @@ int main() {
 
     std::random_device RandomDevice;
     std::mt19937 Random(RandomDevice());
-    std::uniform_int_distribution<> RandomWidth(0, ScreenWidth / BoxSize - 1);
-    std::uniform_int_distribution<> RandomHeight(0, ScreenHeight / BoxSize - 1);
+    std::uniform_int_distribution<> RandomWidth(1, 18); //ScreenWidth / BoxSize - 1
+    std::uniform_int_distribution<> RandomHeight(2, 18); //ScreenHeight / BoxSize - 1
 
     int ApplePositionX = RandomWidth(Random);
     int ApplePositionY = RandomHeight(Random);
 
     bool GameOver = false;
+    bool FruitPickedUp = false;
 
     while (!window.ShouldClose())
     {
@@ -88,15 +90,13 @@ int main() {
         window.SetTitle(*TitleString);
 
         if (GameOver) {
-            auto DeathText = "RIP! You Died With A Length Of "+std::to_string(PlayerSnake->GetLength())+"!";
+            auto DeathText = "RIP! You Died With A Score Of "+std::to_string(PlayerSnake->GetLength() - 3)+"!";
             auto DeathTextCString = DeathText.c_str();
-            int TextWidth = MeasureText(DeathTextCString, 30);
-            DrawText(DeathTextCString, (ScreenWidth / 2) - (TextWidth / 2), ScreenHeight / 2, 30, BLACK);
+            Vector2 TextWidth = ScoreFont.MeasureText(DeathText, 20, 0.0);//MeasureText(DeathTextCString, 20);
+            ScoreFont.DrawText(DeathText, (ScreenWidth / 2) - (TextWidth.x / 2), ScreenHeight / 2, 20, 0.0, BLACK);
             EndDrawing();
             continue;
         }
-
-        Food.Draw(ApplePositionX * BoxSize, ApplePositionY * BoxSize);
 
         SnakeBodySection *Head = PlayerSnake->GetHead();
         int SpaceAheadX = Head->GetX() + LastTimedMoveDirectionX;
@@ -104,8 +104,6 @@ int main() {
         bool NextMoveApple = (SpaceAheadX == ApplePositionX && SpaceAheadY == ApplePositionY) or (Head->GetX() == ApplePositionX && Head->GetY() == ApplePositionY);
 
         PlayerSnake->Draw(LastTimedMoveDirectionX, LastTimedMoveDirectionY, NextMoveApple, &SnakeStuff, BoxSize);
-
-        EndDrawing();
 
         if (IsKeyPressed(KEY_UP) and LastTimedMoveDirectionY == 0){
             DirectionToMoveX = 0;
@@ -131,16 +129,38 @@ int main() {
                 ApplePositionY = RandomHeight(Random);
                 PlayerSnake->AddSegment();
                 PlayerSnake->GetHead()->SetHasFood(true);
+                FruitPickedUp = true;
             }
 
             CurrentSecondsForMovement = 0.0;
             PlayerSnake->ProcessFood();
             GameOver = PlayerSnake->Move(DirectionToMoveX, DirectionToMoveY);
+
+            int SnakeHeadPositionX = PlayerSnake->GetHead()->GetX();
+            int SnakeHeadPositionY = PlayerSnake->GetHead()->GetY();
+
+            if (SnakeHeadPositionX < 1 or SnakeHeadPositionX > 18 or SnakeHeadPositionY < 2 or SnakeHeadPositionY > 18) {
+                GameOver = true;
+            }
+
+
             LastTimedMoveDirectionX = DirectionToMoveX;
             LastTimedMoveDirectionY = DirectionToMoveY;
         }
 
         CurrentSecondsForMovement += window.GetFrameTime();
+
+        if (FruitPickedUp) {
+            FruitPickedUp = false;
+        }else {
+            Food.Draw(ApplePositionX * BoxSize, ApplePositionY * BoxSize);
+        }
+
+        ScoreFont.DrawText("Score: " + std::to_string(PlayerSnake->GetLength() - 3), 40, 30, 30, 0.0, BLACK);
+
+        Rectangle.DrawLines(BLACK, 5.0);
+
+        EndDrawing();
 
     }
     return 0;
